@@ -16,7 +16,7 @@ Vue.config.productionTip = false
 
 
 
-Vue.use(VueSocketio, '/')
+Vue.use(VueSocketio, 'localhost:4000')
 Vue.use(Vuex)
 
 const initialState = {
@@ -25,7 +25,9 @@ const initialState = {
     score: 0,
     opScore: 0,
     roundNum: 10,
-    opponentDisconnected: false
+    opponentDisconnected: false,
+    region: '',
+    players: 2,
     
   }
 

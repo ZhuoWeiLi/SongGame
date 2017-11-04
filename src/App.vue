@@ -55,6 +55,7 @@ button:focus {
 
 .fullHeight {
   height: 100%;
+  position:relative;
 }
 
 a {

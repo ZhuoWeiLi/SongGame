@@ -63,8 +63,6 @@ export default {
     methods: {
         getReady() {
             if (!this.clicked) {
-
-
                 this.$socket.emit('ready', {})
                 this.buttonMessage = 'Ready';
                 this.clicked = true;
@@ -125,7 +123,7 @@ export default {
                 {
                     src: require("../assets/songs/" + this.song.title + ".mp3"),
                     onload: function () {
-                        console.log('songloaded')
+                        console.log('songloaded at' + new Date().getSeconds())
                         if (this.gameMode === 'multiplayer') {
                             this.$socket.emit('soundLoaded')
                         }
@@ -140,13 +138,13 @@ export default {
         },
 
         startSong() {
-            setTimeout(function () {
+
                 this.roundOver = false;
                 
                 this.audio.play();
                 if (DEBUG) console.log('started playing at', new Date().getSeconds())
                 this.timeOutFunc = setTimeout(this.endRound.bind(this), this.time * 1000)
-            }.bind(this), 2000)
+  
         },
 
         checkAnswer: function (event) {
