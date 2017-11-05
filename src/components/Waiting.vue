@@ -20,7 +20,7 @@ export default {
     },
 
     created() {
-        this.$socket.emit('searching', {});
+        this.$socket.emit('searching', {players: this.$store.state.players, region: this.$store.state.region});
     },
 
     methods: {

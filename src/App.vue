@@ -8,9 +8,6 @@
 
 <script>
 
-import Setup from './components/Setup.vue';
-
-
 export default {
   name: 'app',
 

@@ -23,7 +23,7 @@ const initialState = {
     time: 10,
     gameMode: 'singleplayer',
     score: 0,
-    opScore: 0,
+    otherScores: {},
     roundNum: 10,
     opponentDisconnected: false,
     region: '',
@@ -61,6 +61,14 @@ const store = new Vuex.Store({
     resetState (state){
       Object.assign(state, initialState)
       
+    },
+
+    changePlayers(state, num) {
+      state.players = num
+    },
+
+    changeRegion(state, reg) {
+      state.region = reg
     }
 
   }

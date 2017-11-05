@@ -5,9 +5,9 @@
       <p class='inline'>
         Players
         <br>
-        <select>
+        <select ref = 'players' v-on:change='changePlayers'>
           <option value="1">1</option>
-          <option value="2">2</option>
+          <option selected value="2">2</option>
           <option value="3">3</option>
           <option value="4">4</option>
         </select>
@@ -16,7 +16,7 @@
       <p class = 'inline'>
         Region
         <br>
-        <select>
+        <select ref = 'region' v-on:change='changeRegion'>
           <option value="United States">United States</option>
         </select>
       </p>
@@ -46,6 +46,23 @@ export default {
 
 
   },
+
+  methods: {
+    changePlayers() {
+      console.log(this.$refs.players)
+      this.$store.commit("changePlayers", this.$refs.players.value)
+    },
+
+    changeRegion() {
+      this.$store.commit("changeRegion", this.$refs.region.value)
+    }
+  },
+
+  mounted() {
+    this.changePlayers()
+    this.changeRegion()
+
+  }
 
 
 }

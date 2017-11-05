@@ -1,14 +1,14 @@
 <template>
-    <div class='fullHeight' id='Game'>
-        <choice-buttons v-if='ready||gameMode==="singleplayer"'>
-        </choice-buttons>
-
-        <button id='readyButton' v-bind:class='{ready: clicked}' v-on:click='getReady' v-else>{{buttonMessage}}</button>
+    <div>
     </div>
 </template>
 
 <script>
-import ChoiceButtons from './ChoiceButtons'
+import songs from '../../server/data.js'
+
+
+var DEBUG = true;
+
 
 
 export default {
