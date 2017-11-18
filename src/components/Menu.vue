@@ -5,7 +5,7 @@
       <p class='inline'>
         Players
         <br>
-        <select ref = 'players' v-on:change='changePlayers'>
+        <select ref='players' v-on:change='changePlayers'>
           <option value="1">1</option>
           <option selected value="2">2</option>
           <option value="3">3</option>
@@ -13,10 +13,12 @@
         </select>
       </p>
 
-      <p class = 'inline'>
+      <p class='inline'>
         Region
         <br>
-        <select ref = 'region' v-on:change='changeRegion'>
+        <select ref='region' v-on:change='changeRegion'>
+          <option value="Canada">Canada</option>
+          <option value="Japan">Japan</option>
           <option value="United States">United States</option>
         </select>
       </p>
@@ -26,10 +28,7 @@
     <div id='start-buttons'>
       <h1 class='text-center'>Song Guessing Game</h1>
       <router-link to='/lobby'>
-        <button class='brown-button'>Find Opponent</button>
-      </router-link>
-      <router-link to='/setup'>
-        <button class='brown-button'>Single-Player</button>
+        <button class='brown-button'>Play Match</button>
       </router-link>
     </div>
   </div>
@@ -128,14 +127,13 @@ select {
   -moz-appearance: none;
   padding: 0 7px;
   border-radius: 3px;
-  text-indent: 1px;
+  text-align: center;
+  text-align-last: center;
   border: none;
   box-sizing: border-box;
 }
 
 option {
-  padding: 0 7px;
-  border: none;
+  text-align: left;
 }
-
 </style>

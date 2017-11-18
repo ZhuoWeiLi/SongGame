@@ -1,18 +1,19 @@
 <template>
     <div class='fullHeight centerContent'>
-        <div v-if = 'opponentDisconnected' class='endMessage'>
-            <h1>Your Opponent Has Disconnected.</h1>
-            <button id='restartButton' class='choice-button' v-on:click='restart'>Back to Menu</button>
-        </div>
-        <div v-else-if='gameMode === "multiplayer"' class='endMessage'>
-            <h1>{{this.message}}</h1>
-            <p>
-                <span class='score'>{{score}} - {{opScore}}</span>
-            </p>
-            <button id='restartButton' class='choice-button' v-on:click='restart'>Back to Menu</button>
-        </div>
-        <div v-else class='endMessage'>
-            <h1>You got a score of {{score}} in {{roundNum}} rounds</h1>
+        <!--         <div v-if = 'opponentDisconnected' class='endMessage'>
+                                <h1>An Opponent Has Disconnected.</h1>
+                                <button id='restartButton' class='choice-button' v-on:click='restart'>Back to Menu</button>
+                            </div> -->
+        <div class='endMessage'>
+            <h1>Final Standings</h1>
+            <table id='scoreboard'>
+                <tr v-bind:data-id='value.id' v-for="(value, index) in scores">
+                    <td v-if="value.id === id">You</td>
+                    <td v-else>Player {{index+1}}</td>
+                    <td>{{value.score}}</td>
+                </tr>
+            </table>
+
             <button id='restartButton' class='choice-button' v-on:click='restart'>Back to Menu</button>
         </div>
     </div>
@@ -23,31 +24,21 @@
 export default {
     data() {
         return {
-            score: this.$store.state.score,
-            opScore: this.$store.state.opScore,
-            opponentDisconnected: this.$store.state.opponentDisconnected
+            id: this.$store.state.id,
         }
     },
     computed: {
-        message() {
-            if (this.score > this.opScore) {
-                return 'Congratulations you won!';
+        scores() {
+            const list = []
+            for (let key in this.$store.state.scores) {
+                list.push({ id: key, score: this.$store.state.scores[key] })
             }
-            else if (this.score == this.opScore) {
-                return 'A tie!';
-            }
-
-            else {
-                return 'Better luck next time!';
-            }
-        },
-        gameMode() {
-            return this.$store.state.gameMode
-        },
-
-        roundNum() {
-            return this.$store.state.roundNum
+            list.sort((a, b) => {
+                return b.score - a.score;
+            })
+            return list
         }
+
     },
 
     methods: {
@@ -66,11 +57,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.score {
-    font-size: 50px;
-    letter-spacing: 2px;
-}
-
 #restartButton {
     width: 100%;
     color: white;
@@ -78,7 +64,7 @@ export default {
 
 .endMessage {
     border: 1px solid black;
-    padding: 8%;
+    padding: 5%;
     border-radius: 10%;
     color: white;
     background: #111111;
@@ -101,4 +87,21 @@ export default {
 .choice-button:hover {
     background: #c1b9a7;
 }
+
+table {
+    width: 100%;
+    margin: 15% 0;
+    padding: 0;
+}
+
+td:first-child {
+    text-align: left;
+    font-size: 1.5em
+}
+
+td:nth-child(2) {
+    text-align: right;
+    font-size: 1.5em
+}
+
 </style>

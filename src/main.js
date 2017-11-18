@@ -21,13 +21,13 @@ Vue.use(Vuex)
 
 const initialState = {
     time: 10,
+    id: '',
     gameMode: 'singleplayer',
-    score: 0,
-    otherScores: {},
+    scores: {},
     roundNum: 10,
     opponentDisconnected: false,
     region: '',
-    players: 2,
+    numPlayers: 2,
     
   }
 
@@ -64,12 +64,29 @@ const store = new Vuex.Store({
     },
 
     changePlayers(state, num) {
-      state.players = num
+      state.numPlayers = num
     },
 
     changeRegion(state, reg) {
       state.region = reg
+    },
+
+    setId (state, id) {
+      state.id = id
+    },
+
+    initializeScores (state, player_ids){
+      state.scores = {}
+      for (var i = 0; i < player_ids.length; i++) {
+        state.scores[player_ids[i]] = 0;
+      }
+    },
+
+    incrementScore (state, data) {
+      state.scores[data.id] += data.value
+      state.scores = Object.assign({}, state.scores)
     }
+
 
   }
 })

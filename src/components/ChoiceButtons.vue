@@ -1,8 +1,6 @@
 <template>
     <div id='choices'>
         <button v-bind:data-title='choice.title' v-for='choice in choices' class='choice-button' v-on:click='checkAnswer'>
-            <span class='source'>{{choice.source}}</span>
-            <span> - </span>
             <span class='title'>{{choice.title}}</span>
         </button>
         <button v-if='!skip' id='notSkipping' v-on:click='skipRound'>Skip</button>
@@ -25,7 +23,7 @@ export default {
         return {
             time: this.$store.state.time,
             roundNum: this.$store.state.roundNum,
-            players: this.$store.state.players,
+            numPlayers: this.$store.state.numPlayers,
             roundOver: true,
             roundCount: 0,
             timeOutFunc: '',
@@ -34,7 +32,8 @@ export default {
             song: "",
             clicked: false,
             skip: false,
-            skipMessage: 'Skip'
+            skipMessage: 'Skip',
+            id: this.$store.state.id
 
         }
     },
@@ -42,7 +41,7 @@ export default {
     methods: {
         skipRound() {
             if (!this.roundOver) {
-                if (this.players === 1) {
+                if (this.numPlayers === 1) {
                     this.endRound();
                 }
                 else if (!this.skip) {
@@ -78,24 +77,19 @@ export default {
         loadSong() {
             this.audio = new Howl(
                 {
-                    src: require("../assets/songs/" + this.song.title + ".mp3"),
+                    src: this.song.source,
+                    onload: function() {
+                        console.log('songloaded at' + new Date().getSeconds())
+                        this.$socket.emit('soundLoaded')
+
+                    }.bind(this)
 
                 })
-
-            this.audio.once('load', function() {
-                console.log('songloaded at' + new Date().getSeconds())
-                if (this.$store.state.players >= 2) {
-                    this.$socket.emit('soundLoaded')
-                }
-                else {
-                    this.startSong();
-                }
-
-            }.bind(this))
 
         },
 
         startSong() {
+
             console.log('starting song ' + Date.now())
             this.roundOver = false;
             this.audio.play();
@@ -124,12 +118,12 @@ export default {
 
                 }
 
-                this.score += scoreChange;
 
-                if (this.players >= 2) {
-                    this.$socket.emit('buttonClicked', { clickedSong: clickedSong, scoreChange: scoreChange })
 
-                }
+                this.$store.commit('incrementScore', { id: this.id, value: scoreChange })
+                console.log(this.$store.state.scores)
+                this.$socket.emit('buttonClicked', { id: this.id, clickedSong: clickedSong, scoreChange: scoreChange })
+
                 this.endRound();
 
             }
@@ -195,13 +189,12 @@ export default {
 
             this.choices = data.choices;
             this.song = data.song;
-
-            if (DEBUG) console.log(this.audio);
+            console.log(data)
             this.loadSong();
         },
 
         opponentClicked(data) {
-            this.opScore += data.scoreChange;
+            this.$store.commit('incrementScore', { id: data.id, value: data.scoreChange })
             var clickedButton = document.querySelector('button[data-title="' + data.clickedSong + '"]')
             var correctButton = document.querySelector('button[data-title="' + this.song.title + '"]')
             console.log(clickedButton);
@@ -225,14 +218,7 @@ export default {
 
         startSong(data) {
             console.log(data)
-            const checkTime = setInterval(() => {
-                console.log('checking at' + Date.now())
-                if (Date.now() >= data.startTime) {
-                    clearInterval(checkTime)
-                    console.log('start approved at ' + Date.now())
-                    this.startSong();
-                }
-            }, 10)
+            this.startSong();
 
         },
 

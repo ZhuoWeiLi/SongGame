@@ -1,6 +1,8 @@
 <template>
     <div class='fullHeight' id='Game'>
-        <choice-buttons v-if='ready||gameMode==="singleplayer"'>
+        <score-board></score-board>
+
+        <choice-buttons v-if='ready'>
         </choice-buttons>
 
         <button id='readyButton' v-bind:class='{ready: clicked}' v-on:click='getReady' v-else>{{buttonMessage}}</button>
@@ -9,11 +11,13 @@
 
 <script>
 import ChoiceButtons from './ChoiceButtons'
+import ScoreBoard from './ScoreBoard'
 
 
 export default {
     components: {
-        'choice-buttons': ChoiceButtons
+        'choice-buttons': ChoiceButtons,
+        'score-board': ScoreBoard
     },
 
 
@@ -53,11 +57,8 @@ export default {
         },
 
 
-    },
-    created() {
-        if (this.gameMode === 'singleplayer') this.newRound();
-
     }
+
 
 }
 

@@ -2,39 +2,33 @@ const express = require('express');
 const app = express();
 const socket = require('socket.io');
 const _ = require('underscore');
-const songs = require('./data.js')
-const request = require('request')
+const populateSongs = require('./itunes.js')
 
+let songsByCountry= populateSongs();
+
+setInterval(()=> {
+    songsByCountry = populateSongs()
+}, 3600000)
+ 
 
 app.use(express.static('public'))
 
 const server = app.listen(process.env.PORT || 4000);
 const io = socket(server);
 
-const gameRooms = {}
-
-const TOP_SONGS_URL_BASE = "https://rss.itunes.apple.com/api/v1/"
-const TOP_SONGS_URL_END = "/itunes-music/hot-tracks/all/100/explicit.json"
-
-function getTopSongs(region) {
-    return new Promise((resolve, reject) => {
-        request(TOP_SONGS_URL_BASE + region + TOP_SONGS_URL_END, (error, success, data) => {
-            if (error) {
-                reject(error)
-            }
-            else {
-                resolve(JSON.parse(data).feed.results)
-            }
-
-        })
-    })
+const countryToCode = {
+    'Canada': 'ca',
+    'China': 'cn',
+    'Japan': 'jp',
+    'United States': 'us',
 }
 
-getTopSongs('us')
 
 io.on('connection', (socket) => {
     socket.on('searching', (data) => {
         socket.join(data.region + data.players);
+        socket.emit('id', {id: socket.id})
+        socket.region = countryToCode[data.region]
         waitingSockets = Object.keys(io.sockets.adapter.rooms[data.region + data.players].sockets)
         if (waitingSockets.length >= data.players) {
             const players = waitingSockets.slice(0, data.players);
@@ -44,9 +38,13 @@ io.on('connection', (socket) => {
                 currentSocket.leave(data.region + data.players);
                 currentSocket.join(players[0]);
                 currentSocket.gameRoom = players[0];
+                
             })
             io.sockets.adapter.rooms[socket.gameRoom].count = 0
-            io.sockets.in(socket.gameRoom).emit('found', {});
+            
+            
+            io.sockets.in(socket.gameRoom).emit('found', {players: players});
+            
 
 
         }
@@ -54,13 +52,11 @@ io.on('connection', (socket) => {
     socket.on('ready', () => {
         const room = io.sockets.adapter.rooms[socket.gameRoom]
         room.count += 1;
-        console.log(Object.keys(room.sockets).length)
-        if (room.count === Object.keys(room.sockets).length) {
+        if (room.count === room.length) {
             room.count = 0;
             io.sockets.in(socket.gameRoom).emit('startGame')
         }
 
-        console.log(room)
 
 
     })
@@ -74,11 +70,15 @@ io.on('connection', (socket) => {
         const room = io.sockets.adapter.rooms[socket.gameRoom]
         room.count += 1;
 
-        if (room.count === Object.keys(room.sockets).length) {
-            choices = _.sample(songs, 4);
-            song = _.sample(choices);
-            io.sockets.in(socket.gameRoom).emit('newRoundSongs', { choices: choices, song: song })
+        if (room.count === room.length) {
             room.count = 0;
+            songsByCountry.then((songs)=> {
+                const choices = _.sample(songs[socket.region], 4)
+                const song = _.sample(choices);
+                io.sockets.in(socket.gameRoom).emit('newRoundSongs', { choices: choices, song: song })
+            })
+            
+
         }
 
     })
@@ -86,10 +86,10 @@ io.on('connection', (socket) => {
     socket.on('soundLoaded', () => {
         const room = io.sockets.adapter.rooms[socket.gameRoom]
         room.count += 1;
-        if (room.count === Object.keys(room.sockets).length) {
+        if (room.count === room.length) {
             console.log('second loaded at ' + Date.now())
             room.count = 0;
-            io.sockets.in(socket.gameRoom).emit('startSong', { startTime: Date.now() + 2000 })
+            io.sockets.in(socket.gameRoom).emit('startSong')
         }
 
 
@@ -102,9 +102,8 @@ io.on('connection', (socket) => {
     socket.on('skip', () => {
         const room = io.sockets.adapter.rooms[socket.gameRoom]
         room.count += 1;
-        if (room.count === Object.keys(room.sockets).length) {
+        if (room.count === room.length) {
             room.count = 0;
-            console.log('skipping')
             io.sockets.in(socket.gameRoom).emit('skip')
         }
 
@@ -114,10 +113,9 @@ io.on('connection', (socket) => {
         const room = io.sockets.adapter.rooms[socket.gameRoom]
         room.count -= 1;
     })
-    console.log('socket received', socket.id);
 
-    socket.on('disconnecting', (reason) => {
+/*     socket.on('disconnecting', (reason) => {
         const room = io.sockets.adapter.rooms[socket.gameRoom]
         io.sockets.in(socket.gameRoom).emit('opponentDisconnected')
-    })
+    }) */
 })

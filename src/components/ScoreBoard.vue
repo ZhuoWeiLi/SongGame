@@ -1,105 +1,78 @@
 <template>
-    <div>
-    </div>
+    <table id='scoreboard'>
+        <tr><th>Players</th><th>Score</th></tr>
+        <tr v-bind:data-id='value.id' v-for="(value, index) in scores">
+             <td v-if="value.id === id">You</td>
+            <td v-else>Player {{index+1}}</td>
+            <td>{{value.score}}</td>
+        </tr>
+    </table>
 </template>
 
 <script>
-import songs from '../../server/data.js'
-
-
-var DEBUG = true;
-
-
 
 export default {
-    components: {
-        'choice-buttons': ChoiceButtons
-    },
-
-
     data() {
         return {
-            ready: false,
-            clicked: false,
-            buttonMessage: 'Not Ready',
-
+            id: this.$store.state.id,
         }
 
-
     },
 
-
-    methods: {
-        getReady() {
-            if (!this.clicked) {
-                this.$socket.emit('ready', {})
-                this.buttonMessage = 'Ready';
-                this.clicked = true;
-
+    computed: {
+        scores() {
+            const list = []
+            for (let key in this.$store.state.scores) {
+                list.push({ id: key, score: this.$store.state.scores[key] })
             }
-            else {
-                this.$socket.emit('notReady', {})
-                this.buttonMessage = 'Not Ready';
-                this.clicked = false;
-            }
-
-        },
+            list.sort((a, b) => {
+                return b.score - a.score;
+            })
+            return list
+        }
 
     },
-
-    sockets: {
-        startGame() {
-            this.ready = true;
-        },
-
-
-    },
-    created() {
-        if (this.gameMode === 'singleplayer') this.newRound();
-
-    }
-
 }
+
+
 
 
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#Game {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+#scoreboard {
+    position: absolute;
+    top: 5px;
+    left: 5px;
 }
 
-#readyButton {
-    margin: 25% 20% 25% 20%;
-    width: 20%;
-    height: 5%;
-    border: 5px solid darkRed;
-    box-shadow: 2px 2px 5px black;
-    transition: background 0.5s, border 0.5s;
-    font-size: 14px;
-    font-family: inherit;
-    cursor: pointer;
-    padding: 0;
+td {
+    text-align: center
 }
 
-#readyButton.ready,
-#readyButton:hover {
-    background: lightgreen;
-    transition: background 0.5s, border 0.5s;
-    border-color: rgba(0, 0, 0, 0)
+table, th, td {
+    background: #FAFAFA;
+    border: 1px solid black;
+    box-sizing: border-box;
+    white-space: nowrap;
+    border-radius: 2px;
 }
 
-
-#readyButton:hover {
-    font-size: 0;
+table {
+    box-shadow: 1px 1px 1px black;
+    width: 200px;
 }
 
-#readyButton:hover:after {
-    content: 'Ready';
-    font-size: 14px;
+th {
+    background: lightgrey;
 }
 
+td {
+    height: 20px;
+}
+
+#scoreboard tr:first-child {
+    height: 30px;
+}
 </style>

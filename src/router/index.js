@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Menu from '@/components/Menu'
-import Setup from '../components/Setup'
 import Game from '../components/Game'
 import End from '../components/End'
 import Waiting from '../components/Waiting'
@@ -16,12 +15,6 @@ export default new Router({
     {
       path: '/',
       component: Menu,
-    },
-
-    {
-      path: '/setup',
-      component: Setup,
-      abstract: true
     },
 
     {
